@@ -1,0 +1,212 @@
+@import "tailwindcss";
+
+/**
+ * Forsikringxperten design system
+ * ------------------------------------------------------------------
+ * One primary (navy), one accent/CTA (blue), one neutral scale.
+ * The accent blue is the ONLY colour used for primary actions — if a new
+ * colour is introduced for a button, the CTA hierarchy stops working.
+ * Semantic colours (success/warning/danger) exist for form and admin states
+ * only, never for marketing decoration.
+ */
+
+@theme {
+  /* --- Neutrals: warm-cool off-white through to near-black ---------- */
+  --color-canvas: #f6f8fb;
+  --color-surface: #ffffff;
+  --color-surface-muted: #eef2f7;
+
+  --color-ink-50: #f2f5f9;
+  --color-ink-100: #e3e9f1;
+  --color-ink-200: #c7d2e0;
+  --color-ink-300: #9fb0c6;
+  --color-ink-400: #6f85a1;
+  --color-ink-500: #4d6480;
+  --color-ink-600: #364d68;
+  --color-ink-700: #253a52;
+  --color-ink-800: #16283c;
+  --color-ink-900: #0c1a2b;
+  --color-ink-950: #060f1c;
+
+  /* --- Primary: deep navy. Dark sections, headings, secondary buttons. */
+  --color-navy: #0c1a2b;
+  --color-navy-soft: #16283c;
+
+  /* --- Accent / CTA: one blue, used consistently -------------------- */
+  --color-accent-50: #eef5ff;
+  --color-accent-100: #d9e8ff;
+  --color-accent-200: #b7d3ff;
+  --color-accent-300: #85b5ff;
+  --color-accent-400: #4b8ffb;
+  --color-accent-500: #1f6feb;
+  --color-accent-600: #0b58cc; /* primary button fill — 5.9:1 with white */
+  --color-accent-700: #0a47a3;
+  --color-accent-800: #0c3c85;
+  --color-accent-900: #0d336e;
+
+  /* Highlight used inside dark navy sections only (never a button). */
+  --color-highlight: #56c8f0;
+
+  /* --- Semantic (forms, admin, states) ------------------------------ */
+  --color-success-50: #ecfdf3;
+  --color-success-500: #12a150;
+  --color-success-700: #0a7038;
+  --color-warning-50: #fff8eb;
+  --color-warning-500: #d99000;
+  --color-warning-700: #97650a;
+  --color-danger-50: #fef2f2;
+  --color-danger-500: #dc2626;
+  --color-danger-700: #a91b1b;
+
+  /* --- Typography --------------------------------------------------- */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-manrope), var(--font-inter), ui-sans-serif,
+    system-ui, sans-serif;
+
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.1rem;
+  --text-caption--letter-spacing: 0.04em;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.375rem;
+  --text-body: 1rem;
+  --text-body--line-height: 1.65rem;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.8rem;
+  --text-h3: 1.375rem;
+  --text-h3--line-height: 1.85rem;
+  --text-h3--letter-spacing: -0.01em;
+  --text-h2: 1.875rem;
+  --text-h2--line-height: 2.25rem;
+  --text-h2--letter-spacing: -0.022em;
+  --text-h1: 2.5rem;
+  --text-h1--line-height: 2.85rem;
+  --text-h1--letter-spacing: -0.03em;
+  --text-display: 3.5rem;
+  --text-display--line-height: 3.75rem;
+  --text-display--letter-spacing: -0.035em;
+
+  /* --- Radius ------------------------------------------------------- */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.75rem;
+
+  /* --- Elevation: low-contrast, never a drop-shadow party ----------- */
+  --shadow-xs: 0 1px 2px 0 rgb(12 26 43 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(12 26 43 / 0.07), 0 1px 2px -1px rgb(12 26 43 / 0.06);
+  --shadow-md: 0 6px 16px -4px rgb(12 26 43 / 0.1), 0 2px 6px -2px rgb(12 26 43 / 0.06);
+  --shadow-lg: 0 18px 40px -12px rgb(12 26 43 / 0.16), 0 4px 12px -6px rgb(12 26 43 / 0.08);
+
+  /* --- Container widths --------------------------------------------- */
+  --container-prose: 44rem;
+  --container-content: 68rem;
+  --container-wide: 80rem;
+
+  /* --- Motion: short, functional, never blocking ------------------- */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Breakpoints follow the Tailwind defaults (sm 40rem … 2xl 96rem) plus one
+   ultrawide stop so long-form layouts stop growing forever. */
+@theme {
+  --breakpoint-3xl: 110rem;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink-800);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    color: var(--color-ink-900);
+    font-weight: 700;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* A single, consistent focus treatment across every interactive element. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-accent-600);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  ::selection {
+    background-color: var(--color-accent-100);
+    color: var(--color-ink-900);
+  }
+
+  /* Anchor targets must not hide behind the sticky header. */
+  :target {
+    scroll-margin-top: 6rem;
+  }
+}
+
+@layer utilities {
+  /* Dark navy sections invert the type colours in one place. */
+  .on-dark {
+    color: var(--color-ink-200);
+  }
+  .on-dark :where(h1, h2, h3, h4) {
+    color: #ffffff;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Subtle entrance used sparingly on above-the-fold elements. */
+  @keyframes fx-rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .animate-rise {
+    animation: fx-rise 0.5s var(--ease-out-soft) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
