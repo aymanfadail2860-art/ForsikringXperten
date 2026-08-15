@@ -3,14 +3,9 @@ import { Suspense } from "react";
 import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
 
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { StickyMobileCta } from "@/components/layout/StickyMobileCta";
 import { ConsentBanner } from "@/components/analytics/ConsentBanner";
 import { TagScripts } from "@/components/analytics/TagScripts";
 import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
-import { JsonLd } from "@/components/seo/JsonLd";
-import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/jsonld";
 import { siteConfig } from "@/config/site";
 
 const inter = Inter({
@@ -47,31 +42,24 @@ export const viewport: Viewport = {
   colorScheme: "light",
 };
 
+/**
+ * Root layout holds only what every surface needs: fonts, the consent
+ * mechanism and page-view tracking. The public site's header and footer live
+ * in the (site) route group, so the CRM does not inherit marketing chrome.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="da" className={`${inter.variable} ${manrope.variable}`}>
       <body className="min-h-dvh antialiased">
-        <a
-          href="#indhold"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2 focus:font-semibold focus:shadow-lg"
-        >
-          Gå til indhold
-        </a>
+        {children}
 
-        <Header />
-        <main id="indhold">{children}</main>
-        <Footer />
-
-        <StickyMobileCta />
         <ConsentBanner />
         <TagScripts />
         <Suspense fallback={null}>
           <AnalyticsProvider />
         </Suspense>
-
-        <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
       </body>
     </html>
   );
