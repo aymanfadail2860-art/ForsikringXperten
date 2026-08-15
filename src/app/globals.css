@@ -108,9 +108,12 @@
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Breakpoints follow the Tailwind defaults (sm 40rem … 2xl 96rem) plus one
-   ultrawide stop so long-form layouts stop growing forever. */
+/* Breakpoints follow the Tailwind defaults (sm 40rem … 2xl 96rem) plus two
+   extra stops: `xs` marks the width where a logo, a CTA and a menu button
+   stop fitting on one line (measured, not guessed), and `3xl` stops long-form
+   layouts growing forever on ultrawide screens. */
 @theme {
+  --breakpoint-xs: 26rem;
   --breakpoint-3xl: 110rem;
 }
 
@@ -130,6 +133,10 @@
     font-family: var(--font-sans);
     font-size: var(--text-body);
     line-height: 1.65;
+    /* Inherited by everything: a single long word must never be able to widen
+       the page. Headings additionally use `anywhere` (see below), which is the
+       only value that also shrinks min-content width. */
+    overflow-wrap: break-word;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -142,7 +149,16 @@
     color: var(--color-ink-900);
     font-weight: 700;
     text-wrap: balance;
+    /* Danish compound words ("håndværksvirksomhedens", "arbejdsskadeforsikring")
+       are long enough to set a min-content width wider than a small phone,
+       which silently makes the whole page scroll sideways.
+       `hyphens: auto` handles it properly where the browser has a Danish
+       dictionary; `overflow-wrap: anywhere` is the fallback that actually
+       reduces min-content width, so the layout can never be forced wide. */
+    hyphens: auto;
+    overflow-wrap: anywhere;
   }
+
 
   p {
     text-wrap: pretty;

@@ -1,13 +1,10 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { siteConfig } from "@/config/site";
-import {
-  readConsent,
-  toGoogleConsent,
-  type ConsentState,
-} from "@/lib/analytics/consent";
+import { toGoogleConsent } from "@/lib/analytics/consent";
+import { useConsent } from "@/lib/analytics/useConsent";
 import { flushQueue } from "@/lib/analytics/track";
 
 /**
@@ -18,17 +15,13 @@ import { flushQueue } from "@/lib/analytics/track";
  * simply means that tool is not active, which is the correct default.
  */
 export function TagScripts() {
-  const [consent, setConsent] = useState<ConsentState | null>(null);
+  const consent = useConsent();
 
+  // Events fired before consent are held in a queue; once analytics is
+  // granted they are released so the funnel stays coherent.
   useEffect(() => {
-    setConsent(readConsent());
-    const onChange = (e: Event) => {
-      setConsent((e as CustomEvent<ConsentState>).detail);
-      flushQueue();
-    };
-    window.addEventListener("fx:consent", onChange);
-    return () => window.removeEventListener("fx:consent", onChange);
-  }, []);
+    if (consent?.analytics) flushQueue();
+  }, [consent]);
 
   if (!consent) return null;
 

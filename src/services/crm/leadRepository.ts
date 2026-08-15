@@ -369,6 +369,8 @@ export async function getActionQueues(): Promise<{
   followUpsDue: LeadRow[];
   hotOpen: LeadRow[];
   staleUncontacted: LeadRow[];
+  /** Server timestamp, so pages can mark overdue items without reading a clock during render. */
+  asOf: string;
 }> {
   const supabase = await getServerClient();
   const now = new Date();
@@ -423,6 +425,7 @@ export async function getActionQueues(): Promise<{
     followUpsDue: followUpsDue.data ?? [],
     hotOpen: hotOpen.data ?? [],
     staleUncontacted: staleUncontacted.data ?? [],
+    asOf: now.toISOString(),
   };
 }
 

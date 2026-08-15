@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { readConsent, writeConsent, type ConsentState } from "@/lib/analytics/consent";
+import { writeConsent } from "@/lib/analytics/consent";
+import { useConsentPromptOpen } from "@/lib/analytics/useConsent";
 import { trackEvent } from "@/lib/analytics/track";
 
 /**
@@ -14,24 +15,17 @@ import { trackEvent } from "@/lib/analytics/track";
  * not hold up. The choice can be reopened from the footer at any time.
  */
 export function ConsentBanner() {
-  const [state, setState] = useState<ConsentState | null | undefined>(undefined);
+  // False during SSR and the first client render, so the banner never flashes
+  // in front of someone who already made a choice.
+  const open = useConsentPromptOpen();
   const [showDetails, setShowDetails] = useState(false);
   const [analytics, setAnalytics] = useState(true);
   const [marketing, setMarketing] = useState(true);
 
-  useEffect(() => {
-    setState(readConsent());
-    const reopen = () => setState(null);
-    window.addEventListener("fx:consent-reopen", reopen);
-    return () => window.removeEventListener("fx:consent-reopen", reopen);
-  }, []);
-
-  // undefined = not yet read on the client; a stored decision hides the banner.
-  if (state === undefined || state) return null;
+  if (!open) return null;
 
   const decide = (next: { analytics: boolean; marketing: boolean }) => {
-    const saved = writeConsent(next);
-    setState(saved);
+    writeConsent(next);
     trackEvent("consent_updated", {
       analytics: next.analytics,
       marketing: next.marketing,

@@ -103,11 +103,17 @@ const contactStep: StepDefinition = {
     if (last) errors.lastName = last;
 
     // Reuse the real schema for the formats so client and server never drift.
+    // Parsing a single field yields issues with an empty path, so the message
+    // is read off the first issue rather than looked up by field name.
     const phoneCheck = privateLeadSchema.shape.phone.safeParse(s.phone);
-    if (!phoneCheck.success) errors.phone = fieldErrors(phoneCheck.error).phone ?? "Tjek telefonnummeret";
+    if (!phoneCheck.success) {
+      errors.phone = phoneCheck.error.issues[0]?.message ?? "Tjek telefonnummeret";
+    }
 
     const emailCheck = privateLeadSchema.shape.email.safeParse(s.email);
-    if (!emailCheck.success) errors.email = fieldErrors(emailCheck.error).email ?? "Tjek e-mailen";
+    if (!emailCheck.success) {
+      errors.email = emailCheck.error.issues[0]?.message ?? "Tjek e-mailen";
+    }
 
     return errors;
   },

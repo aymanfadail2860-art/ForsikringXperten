@@ -1,12 +1,9 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import next from "eslint-config-next";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({ baseDirectory: __dirname });
-
+/**
+ * eslint-config-next v16 ships a flat config array directly, so it is spread
+ * rather than wrapped in FlatCompat.
+ */
 const eslintConfig = [
   {
     ignores: [
@@ -17,8 +14,11 @@ const eslintConfig = [
       "test-results/**",
     ],
   },
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...next,
   {
+    // Scoped to TS: the @typescript-eslint plugin is only registered for these
+    // files by next/typescript, and referencing its rules elsewhere errors.
+    files: ["**/*.ts", "**/*.tsx"],
     rules: {
       "@typescript-eslint/no-unused-vars": [
         "error",

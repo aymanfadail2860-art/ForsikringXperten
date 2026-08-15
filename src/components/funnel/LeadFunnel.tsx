@@ -35,6 +35,7 @@ import {
 } from "@/lib/validation/lead";
 import { getAttribution } from "@/lib/attribution/attribution";
 import { trackEvent } from "@/lib/analytics/track";
+import { useHydrated } from "@/lib/analytics/useConsent";
 import { LEAD_CONSENT_SHORT } from "./consentText";
 
 const DRAFT_KEY = "fx_funnel_draft";
@@ -53,17 +54,68 @@ const SESSION_KEY = "fx_funnel_session";
  *  - progression is reported anonymously so drop-off is measurable per step
  */
 export function LeadFunnel({ initialType }: { initialType?: LeadType }) {
-  const [state, setState] = useState<FunnelState>(() => ({
-    ...initialFunnelState,
-    leadType: initialType,
-  }));
-  const [stepIndex, setStepIndex] = useState(initialType ? 1 : 0);
+  // The funnel reads sessionStorage (draft answers, session id) in its state
+  // initialisers. Mounting it only after hydration keeps that a plain read
+  // instead of an effect that patches state in after the first paint.
+  const hydrated = useHydrated();
+  if (!hydrated) {
+    return <div className="min-h-[26rem] animate-pulse rounded-xl bg-ink-50" />;
+  }
+  return <LeadFunnelForm initialType={initialType} />;
+}
+
+type RestoredDraft = { state: FunnelState; stepIndex: number };
+
+/** Reads a previously saved draft. Never restores consent — it must be given now. */
+function readDraft(initialType?: LeadType): RestoredDraft | null {
+  try {
+    const raw = window.sessionStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<RestoredDraft>;
+    if (!parsed?.state) return null;
+    return {
+      state: {
+        ...initialFunnelState,
+        ...parsed.state,
+        // A type in the URL always wins over a stale draft.
+        leadType: initialType ?? parsed.state.leadType,
+        consent: false,
+      },
+      stepIndex: Math.max(0, Math.min(parsed.stepIndex ?? 0, 6)),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** Stable anonymous id linking funnel events to the lead they become. */
+function readOrCreateSessionId(): string | null {
+  try {
+    let id = window.sessionStorage.getItem(SESSION_KEY);
+    if (!id) {
+      id = crypto.randomUUID();
+      window.sessionStorage.setItem(SESSION_KEY, id);
+    }
+    return id;
+  } catch {
+    return null;
+  }
+}
+
+function LeadFunnelForm({ initialType }: { initialType?: LeadType }) {
+  // Lazy initialisers run exactly once, on this component's first (client-only)
+  // render — so browser storage is read without an effect and without a ref.
+  const [draft] = useState(() => readDraft(initialType));
+  const [state, setState] = useState<FunnelState>(
+    () => draft?.state ?? { ...initialFunnelState, leadType: initialType },
+  );
+  const [stepIndex, setStepIndex] = useState(
+    () => draft?.stepIndex ?? (initialType ? 1 : 0),
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "done" | "error">("idle");
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [restored, setRestored] = useState(false);
-
-  const sessionId = useRef<string | null>(null);
+  const [sessionId] = useState<string | null>(() => readOrCreateSessionId());
   const headingRef = useRef<HTMLHeadingElement>(null);
   const startedRef = useRef(false);
   const viewedSteps = useRef<Set<string>>(new Set());
@@ -72,38 +124,9 @@ export function LeadFunnel({ initialType }: { initialType?: LeadType }) {
   const step = steps[Math.min(stepIndex, steps.length - 1)];
   const isLastStep = stepIndex === steps.length - 1;
 
-  // --- Session id + draft restore ----------------------------------------
-  useEffect(() => {
-    try {
-      let id = window.sessionStorage.getItem(SESSION_KEY);
-      if (!id) {
-        id = crypto.randomUUID();
-        window.sessionStorage.setItem(SESSION_KEY, id);
-      }
-      sessionId.current = id;
-
-      const draft = window.sessionStorage.getItem(DRAFT_KEY);
-      if (draft) {
-        const parsed = JSON.parse(draft) as { state: FunnelState; stepIndex: number };
-        if (parsed?.state) {
-          setState((prev) => ({
-            ...parsed.state,
-            // A type in the URL always wins over a stale draft.
-            leadType: initialType ?? parsed.state.leadType,
-            consent: false, // consent is never restored — it must be given now
-          }));
-          setStepIndex(Math.max(0, Math.min(parsed.stepIndex ?? 0, 6)));
-        }
-      }
-    } catch {
-      /* storage unavailable — the funnel still works, just without a draft */
-    }
-    setRestored(true);
-  }, [initialType]);
-
   // --- Persist draft ------------------------------------------------------
   useEffect(() => {
-    if (!restored || status === "done") return;
+    if (status === "done") return;
     try {
       window.sessionStorage.setItem(
         DRAFT_KEY,
@@ -112,13 +135,13 @@ export function LeadFunnel({ initialType }: { initialType?: LeadType }) {
     } catch {
       /* ignore */
     }
-  }, [state, stepIndex, restored, status]);
+  }, [state, stepIndex, status]);
 
   const postFunnelEvent = useCallback(
     (eventType: string, extra: { stepId?: string; stepIndex?: number } = {}) => {
-      if (!sessionId.current) return;
+      if (!sessionId) return;
       const body = JSON.stringify({
-        sessionId: sessionId.current,
+        sessionId,
         eventType,
         leadType: state.leadType,
         landingPage: getAttribution().landing_page,
@@ -134,12 +157,12 @@ export function LeadFunnel({ initialType }: { initialType?: LeadType }) {
         /* tracking must never break the funnel */
       });
     },
-    [state.leadType],
+    [state.leadType, sessionId],
   );
 
   // --- Step view tracking -------------------------------------------------
   useEffect(() => {
-    if (!restored || status === "done" || !step) return;
+    if (status === "done" || !step) return;
 
     if (!startedRef.current) {
       startedRef.current = true;
@@ -157,7 +180,7 @@ export function LeadFunnel({ initialType }: { initialType?: LeadType }) {
       });
       postFunnelEvent("lead_step_viewed", { stepId: step.id, stepIndex });
     }
-  }, [restored, status, step, stepIndex, state.leadType, postFunnelEvent]);
+  }, [status, step, stepIndex, state.leadType, postFunnelEvent]);
 
   const set = <K extends keyof FunnelState>(key: K, value: FunnelState[K]) => {
     setState((prev) => ({ ...prev, [key]: value }));
@@ -241,7 +264,7 @@ export function LeadFunnel({ initialType }: { initialType?: LeadType }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
           toLeadPayload(state, {
-            sessionId: sessionId.current ?? undefined,
+            sessionId: sessionId ?? undefined,
             attribution: getAttribution() as Record<string, string | undefined>,
           }),
         ),
@@ -295,7 +318,7 @@ export function LeadFunnel({ initialType }: { initialType?: LeadType }) {
     );
   }
 
-  if (!restored || !step) {
+  if (!step) {
     // Placeholder with the same height as a step, so nothing jumps.
     return <div className="min-h-[26rem] animate-pulse rounded-xl bg-ink-50" />;
   }

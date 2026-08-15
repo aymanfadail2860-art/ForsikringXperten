@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { primaryCta } from "@/config/cta";
-import { readConsent } from "@/lib/analytics/consent";
+import { useConsent } from "@/lib/analytics/useConsent";
 import { trackCtaClick } from "@/lib/analytics/track";
 
 /** Routes where a sticky CTA would compete with the page's own primary action. */
@@ -18,24 +18,22 @@ const HIDDEN_ON = ["/forsikringstjek", "/book", "/admin"];
  * hidden until a cookie choice has been made, so it never sits on top of the
  * consent dialog.
  */
+function subscribeToScroll(onStoreChange: () => void) {
+  window.addEventListener("scroll", onStoreChange, { passive: true });
+  return () => window.removeEventListener("scroll", onStoreChange);
+}
+
+/** Scroll position is external state — read it, do not mirror it into React. */
+const isScrolledPastHero = () => window.scrollY > 400;
+
 export function StickyMobileCta() {
   const pathname = usePathname();
-  const [visible, setVisible] = useState(false);
-  const [consentDecided, setConsentDecided] = useState(false);
-
-  useEffect(() => {
-    setConsentDecided(Boolean(readConsent()));
-    const onConsent = () => setConsentDecided(true);
-    window.addEventListener("fx:consent", onConsent);
-    return () => window.removeEventListener("fx:consent", onConsent);
-  }, []);
-
-  useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 600);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const visible = useSyncExternalStore(
+    subscribeToScroll,
+    isScrolledPastHero,
+    () => false,
+  );
+  const consentDecided = useConsent() !== null;
 
   if (HIDDEN_ON.some((p) => pathname.startsWith(p))) return null;
   if (!visible || !consentDecided) return null;

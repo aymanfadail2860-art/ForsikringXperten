@@ -37,7 +37,8 @@ export default async function AdminDashboardPage() {
     );
   }
 
-  const now = Date.now();
+  // Timestamp comes from the query, not from a clock read during render.
+  const asOf = new Date(queues.asOf).getTime();
 
   return (
     <div>
@@ -120,7 +121,7 @@ export default async function AdminDashboardPage() {
           emptyMessage="Ingen opfølgninger i dag."
           highlightFor={(lead) =>
             lead.next_follow_up_at
-              ? new Date(lead.next_follow_up_at).getTime() < now
+              ? new Date(lead.next_follow_up_at).getTime() < asOf
                 ? "Forfalden"
                 : formatTime(lead.next_follow_up_at)
               : undefined
