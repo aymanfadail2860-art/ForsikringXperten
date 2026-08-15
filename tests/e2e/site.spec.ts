@@ -6,8 +6,16 @@ import { expect, test, type Page } from "@playwright/test";
  */
 
 async function acceptCookies(page: Page) {
+  // The banner renders after hydration, so a plain isVisible() check races it —
+  // and a missed click leaves consent undecided, which silently changes what
+  // the rest of the page does.
   const accept = page.getByRole("button", { name: "Accepter alle" });
-  if (await accept.isVisible().catch(() => false)) await accept.click();
+  try {
+    await accept.waitFor({ state: "visible", timeout: 10_000 });
+    await accept.click();
+  } catch {
+    // Already decided in this context — nothing to accept.
+  }
 }
 
 const publicPages = [
@@ -94,7 +102,8 @@ test.describe("navigation", () => {
     const sticky = page.getByRole("link", { name: "Start forsikringstjek" });
     await expect(sticky).toHaveCount(0);
 
-    await page.mouse.wheel(0, 2000);
+    // Scroll programmatically: wheel events are unreliable under touch emulation.
+    await page.evaluate(() => window.scrollTo(0, 1400));
     await expect(sticky).toBeVisible();
   });
 

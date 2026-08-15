@@ -109,11 +109,11 @@
 }
 
 /* Breakpoints follow the Tailwind defaults (sm 40rem … 2xl 96rem) plus two
-   extra stops: `xs` marks the width where a logo, a CTA and a menu button
-   stop fitting on one line (measured, not guessed), and `3xl` stops long-form
+   extra stops: `xs` (24rem) is the measured width where the wordmark, the header
+   CTA and the menu button stop fitting on one line; `3xl` stops long-form
    layouts growing forever on ultrawide screens. */
 @theme {
-  --breakpoint-xs: 26rem;
+  --breakpoint-xs: 24rem;
   --breakpoint-3xl: 110rem;
 }
 

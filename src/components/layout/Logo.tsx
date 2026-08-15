@@ -47,7 +47,7 @@ export function Logo({
       </span>
       <span
         className={cn(
-          "font-display text-[1.0625rem] font-extrabold tracking-tight",
+          "font-display text-[0.9375rem] font-extrabold tracking-tight sm:text-[1.0625rem]",
           onDark ? "text-white" : "text-ink-900",
         )}
       >
