@@ -21,7 +21,8 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     // The digest is what correlates this screen with the server log entry.
-    // Wire an error monitor in here (see docs/OBSERVABILITY in README).
+    // Wire an error monitor in here — see "Server-side observability" in the
+    // README. Never send lead data to a third-party monitor.
     console.error("client_error", { digest: error.digest });
   }, [error]);
 

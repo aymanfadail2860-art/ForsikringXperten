@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { allProducts, validFunnelProductValues } from "@/content/products";
+import { allProducts } from "@/content/products";
 import { industries } from "@/content/industries";
 import { guides } from "@/content/guides";
 import { cases } from "@/content/cases";
