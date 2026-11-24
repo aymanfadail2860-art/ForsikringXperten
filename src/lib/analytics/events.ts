@@ -35,6 +35,7 @@ export type AnalyticsPayload = Record<
 export type CtaLocation =
   | "header"
   | "hero"
+  | "hero_starter"
   | "sticky_mobile"
   | "segment_split"
   | "process"

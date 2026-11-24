@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { LeadFunnel } from "@/components/funnel/LeadFunnel";
 import { Container, Section } from "@/components/ui/Layout";
+import { OfferReviewCallout } from "@/components/marketing/OfferReviewCallout";
 import { getLandingPage, landingPages } from "@/content/landingPages";
 import { getIndustry } from "@/content/industries";
 import { getProduct } from "@/content/products";
@@ -127,6 +128,15 @@ export default async function LandingPage({
               </div>
             </div>
           </div>
+        </Container>
+      </Section>
+
+      <Section tone="canvas" size="sm" className="pt-0">
+        <Container>
+          <OfferReviewCallout
+            location="landing_page"
+            audience={page.leadType === "erhverv" ? "erhverv" : "privat"}
+          />
         </Container>
       </Section>
 

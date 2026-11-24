@@ -53,7 +53,14 @@ const SESSION_KEY = "fx_funnel_session";
  *  - a failed submit never clears the form
  *  - progression is reported anonymously so drop-off is measurable per step
  */
-export function LeadFunnel({ initialType }: { initialType?: LeadType }) {
+export function LeadFunnel({
+  initialType,
+  intent,
+}: {
+  initialType?: LeadType;
+  /** Where the visitor came from, e.g. "tilbud" for a counter-offer entry. */
+  intent?: string;
+}) {
   // The funnel reads sessionStorage (draft answers, session id) in its state
   // initialisers. Mounting it only after hydration keeps that a plain read
   // instead of an effect that patches state in after the first paint.
@@ -61,7 +68,7 @@ export function LeadFunnel({ initialType }: { initialType?: LeadType }) {
   if (!hydrated) {
     return <div className="min-h-[26rem] animate-pulse rounded-xl bg-ink-50" />;
   }
-  return <LeadFunnelForm initialType={initialType} />;
+  return <LeadFunnelForm initialType={initialType} intent={intent} />;
 }
 
 type RestoredDraft = { state: FunnelState; stepIndex: number };
@@ -102,7 +109,13 @@ function readOrCreateSessionId(): string | null {
   }
 }
 
-function LeadFunnelForm({ initialType }: { initialType?: LeadType }) {
+function LeadFunnelForm({
+  initialType,
+  intent,
+}: {
+  initialType?: LeadType;
+  intent?: string;
+}) {
   // Lazy initialisers run exactly once, on this component's first (client-only)
   // render — so browser storage is read without an effect and without a ref.
   const [draft] = useState(() => readDraft(initialType));
@@ -166,8 +179,13 @@ function LeadFunnelForm({ initialType }: { initialType?: LeadType }) {
 
     if (!startedRef.current) {
       startedRef.current = true;
-      trackEvent("lead_flow_started", { lead_type: state.leadType });
+      trackEvent("lead_flow_started", { lead_type: state.leadType, intent });
       postFunnelEvent("lead_flow_started");
+      if (intent) {
+        // Carried on the anonymous session, so the advisor can see the lead
+        // arrived holding an offer. No new column, no new validation path.
+        postFunnelEvent("lead_intent", { stepId: `intent_${intent}` });
+      }
     }
 
     const key = `${state.leadType ?? "unknown"}:${step.id}`;
@@ -180,7 +198,7 @@ function LeadFunnelForm({ initialType }: { initialType?: LeadType }) {
       });
       postFunnelEvent("lead_step_viewed", { stepId: step.id, stepIndex });
     }
-  }, [status, step, stepIndex, state.leadType, postFunnelEvent]);
+  }, [status, step, stepIndex, state.leadType, postFunnelEvent, intent]);
 
   const set = <K extends keyof FunnelState>(key: K, value: FunnelState[K]) => {
     setState((prev) => ({ ...prev, [key]: value }));

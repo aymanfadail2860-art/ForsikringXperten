@@ -4,6 +4,7 @@ import { Container, Section, SectionHeading } from "@/components/ui/Layout";
 import { LinkCard } from "@/components/ui/Card";
 import { PrimaryCta, SecondaryCta } from "@/components/ui/CtaLink";
 import { CtaBand } from "./CtaBand";
+import { OfferReviewCallout } from "./OfferReviewCallout";
 import { FaqSection } from "./FaqSection";
 import { ctaTrustLine, segmentCta } from "@/config/cta";
 import { productsBySegment, type Segment } from "@/content/products";
@@ -100,6 +101,14 @@ export function SegmentOverview({
           </div>
         </Container>
       </Section>
+
+      {segment === "erhverv" ? (
+        <Section tone="canvas" size="sm">
+          <Container>
+            <OfferReviewCallout location="product_page" audience="erhverv" />
+          </Container>
+        </Section>
+      ) : null}
 
       {segment === "erhverv" ? (
         <Section tone="canvas" size="sm">

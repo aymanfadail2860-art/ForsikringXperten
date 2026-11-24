@@ -164,6 +164,19 @@
     text-wrap: pretty;
   }
 
+  /*
+    Dark navy sections invert the type colours in one place.
+    These live in `base`, not `utilities`, on purpose: a light-surface card
+    nested inside a navy section must be able to opt out with a plain
+    `text-ink-900`, and a utility would always win over it.
+  */
+  .on-dark {
+    color: var(--color-ink-200);
+  }
+  .on-dark :where(h1, h2, h3, h4) {
+    color: #ffffff;
+  }
+
   /* A single, consistent focus treatment across every interactive element. */
   :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
     outline: 2px solid var(--color-accent-600);
@@ -183,14 +196,6 @@
 }
 
 @layer utilities {
-  /* Dark navy sections invert the type colours in one place. */
-  .on-dark {
-    color: var(--color-ink-200);
-  }
-  .on-dark :where(h1, h2, h3, h4) {
-    color: #ffffff;
-  }
-
   .text-balance {
     text-wrap: balance;
   }

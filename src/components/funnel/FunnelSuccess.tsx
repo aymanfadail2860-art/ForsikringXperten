@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { PhoneLink } from "@/components/ui/CtaLink";
 import { getBookingProvider } from "@/services/calendar";
+import { publicResponseTime, handlesSwitching } from "@/config/site";
 import { trackEvent } from "@/lib/analytics/track";
 import type { ContactMethod } from "@/lib/validation/lead";
 
@@ -61,11 +62,18 @@ export function FunnelSuccess({
           },
           {
             title: "Vi tager fat i dig",
-            body: "Normalt inden for én til to hverdage.",
+            // Was a hardcoded "én til to hverdage" — a service promise invented
+            // in a component, outside the placeholder policy the rest of the
+            // site follows. It is now config-gated like every other claim.
+            body: publicResponseTime
+              ? `Vi kontakter dig ${publicResponseTime}.`
+              : "Vi kontakter dig på den måde, du har valgt.",
           },
           {
             title: "Du får en gennemgang",
-            body: "Og bestemmer helt selv, hvad der skal ske bagefter.",
+            body: handlesSwitching
+              ? "Du bestemmer selv, hvad der skal ske. Vælger du at flytte noget, klarer vi opsigelsen."
+              : "Og bestemmer helt selv, hvad der skal ske bagefter.",
           },
         ].map((item, i) => (
           <li key={item.title} className="flex gap-4">

@@ -33,10 +33,13 @@ export const tertiaryCta = phoneIsPublic
     } as const)
   : null;
 
-/** Short reassurance rendered next to the primary CTA. */
-export const ctaTrustLine = reviewIsDocumentedFree
-  ? "Uforpligtende gennemgang · Tager ca. 2 minutter at starte"
-  : "Uforpligtende gennemgang · Tager ca. 2 minutter at starte";
+/**
+ * Short reassurance rendered next to the primary CTA.
+ * Both halves are true regardless of pricing, so this does not branch on
+ * `reviewIsDocumentedFree` — the price claim lives in the CTA label only.
+ */
+export const ctaTrustLine =
+  "Uforpligtende gennemgang · Tager ca. 2 minutter at starte";
 
 /** Segment-specific entry points into the same funnel. */
 export const segmentCta = {
@@ -45,4 +48,19 @@ export const segmentCta = {
     label: "Tjek virksomhedens forsikringer",
     href: `${LEAD_FLOW_PATH}?type=erhverv`,
   },
+} as const;
+
+/**
+ * Third entry point: the visitor already holds an offer — from their current
+ * insurer or a competitor — and wants a second opinion on it.
+ *
+ * This is a real and very common intent (it is what a "modbud" ad promises),
+ * and it converts better than a generic review because the visitor already
+ * has the document in hand. It runs through the same funnel; only the framing
+ * differs.
+ */
+export const offerReviewCta = {
+  label: "Jeg har fået et tilbud, jeg vil have set efter",
+  shortLabel: "Få et tilbud vurderet",
+  href: `${LEAD_FLOW_PATH}?intent=tilbud`,
 } as const;

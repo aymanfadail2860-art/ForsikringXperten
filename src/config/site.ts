@@ -106,6 +106,42 @@ export const siteConfig = {
   },
 
   /**
+   * Service commitments.
+   *
+   * These are promises to the customer, so they follow the same rule as every
+   * other fact: nothing is shown until the business confirms it can keep it.
+   * A response time on the front page that nobody honours costs more trust
+   * than saying nothing at all.
+   */
+  service: {
+    responseTime: unverified(
+      "inden for 1-2 hverdage",
+      "Bekræft den faktiske svartid, før den loves på forsiden. Formuleres som den vises, fx 'inden for 24 timer på hverdage'.",
+    ),
+    /** Do we handle cancellation and transfer if the customer switches? */
+    handlesSwitching: unverified(
+      true,
+      "Bekræft at vi reelt håndterer opsigelse og flytning. Fjerner den største skifte-indvending, men må kun loves hvis det holder.",
+    ),
+    /** May we review an offer the customer has already received elsewhere? */
+    reviewsExistingOffers: verified(true),
+  },
+
+  /**
+   * Advisors shown on the site. Empty until there are real people with real
+   * consent to be named — a stock photo captioned as "our advisor" is a
+   * fabricated credential, not a design placeholder.
+   */
+  advisors: [] as {
+    name: string;
+    role: string;
+    /** Path under /public. */
+    image?: string;
+    background?: string;
+    linkedin?: string;
+  }[],
+
+  /**
    * Real social proof only. Leave at zero/empty until documented numbers exist.
    * Nothing here is rendered while `verified` is false.
    */
@@ -157,6 +193,20 @@ export const emailIsPublic = siteConfig.contact.email.verified;
  * Falls back to "uforpligtende", which describes the process, not the price.
  */
 export const reviewIsDocumentedFree = siteConfig.businessModel.reviewIsFree.verified;
+
+/**
+ * The response-time promise, or null while unconfirmed. Callers render the
+ * surrounding sentence only when this returns a value.
+ */
+export const publicResponseTime = siteConfig.service.responseTime.verified
+  ? siteConfig.service.responseTime.value
+  : null;
+
+/** True only when we have confirmed we handle cancellation and transfer. */
+export const handlesSwitching = siteConfig.service.handlesSwitching.verified;
+
+/** Advisors are shown only when real people have been added. */
+export const hasAdvisors = siteConfig.advisors.length > 0;
 
 /**
  * Full postal address, or null when incomplete. Used for structured data and

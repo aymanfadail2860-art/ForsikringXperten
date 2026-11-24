@@ -84,6 +84,65 @@ test.describe("forsikringstjek", () => {
     expect(payload.website).toBe("");
   });
 
+  test("the front page asks step one and carries the answer into the funnel", async ({
+    page,
+  }) => {
+    await page.route("**/api/funnel-events", (route) => route.fulfill({ status: 204 }));
+    await page.goto("/");
+    await acceptCookies(page);
+
+    // Step one is answerable without leaving the front page.
+    await expect(
+      page.getByRole("heading", { name: "Hvad vil du have gennemgået?" }),
+    ).toBeVisible();
+
+    await page.getByRole("link", { name: /Mine private forsikringer/ }).click();
+
+    // …and the funnel opens on step two, not back at the start.
+    await expect(page).toHaveURL(/\/forsikringstjek\?type=privat/);
+    await expect(page.getByText("Trin 2 af 5")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Hvilke forsikringer/ })).toBeVisible();
+  });
+
+  test("the business entry lands in the business flow", async ({ page }) => {
+    await page.route("**/api/funnel-events", (route) => route.fulfill({ status: 204 }));
+    await page.goto("/");
+    await acceptCookies(page);
+
+    await page.getByRole("link", { name: /Min virksomheds forsikringer/ }).click();
+    await expect(page).toHaveURL(/\/forsikringstjek\?type=erhverv/);
+    await expect(
+      page.getByRole("heading", { name: "Hvilken virksomhed drejer det sig om?" }),
+    ).toBeVisible();
+  });
+
+  test("the offer-review entry reframes the funnel without changing the questions", async ({
+    page,
+  }) => {
+    await page.route("**/api/funnel-events", (route) => route.fulfill({ status: 204 }));
+    await page.goto("/");
+    await acceptCookies(page);
+
+    await page.getByRole("link", { name: /Jeg har fået et tilbud/ }).click();
+    await expect(page).toHaveURL(/intent=tilbud/);
+    await expect(
+      page.getByRole("heading", { level: 1, name: /tilbuddet set efter/i }),
+    ).toBeVisible();
+    // Same first question as every other entry.
+    await expect(
+      page.getByRole("heading", { name: "Hvad vil du have gennemgået?" }),
+    ).toBeVisible();
+  });
+
+  test("what happens after submitting is visible before submitting", async ({ page }) => {
+    await page.route("**/api/funnel-events", (route) => route.fulfill({ status: 204 }));
+    await page.goto("/forsikringstjek");
+    await acceptCookies(page);
+
+    await expect(page.getByRole("heading", { name: "Når du har sendt" })).toBeVisible();
+    await expect(page.getByText(/beslutter selv resten/)).toBeVisible();
+  });
+
   test("a segment link skips the first question", async ({ page }) => {
     await page.route("**/api/funnel-events", (route) => route.fulfill({ status: 204 }));
     await page.goto("/forsikringstjek?type=erhverv");
