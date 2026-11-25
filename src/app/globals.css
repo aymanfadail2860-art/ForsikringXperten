@@ -215,6 +215,48 @@
   .animate-rise {
     animation: fx-rise 0.5s var(--ease-out-soft) both;
   }
+
+  /*
+    Step transitions in the forsikringstjek.
+
+    Pattern borrowed from motion-primitives' "transition panel" (MIT,
+    (c) 2024 ibelick) — a directional slide that tells the visitor whether
+    they moved forward or back, rather than the step simply being replaced.
+
+    Implemented in CSS rather than with the motion library: the funnel is the
+    most performance-sensitive route on the site, and an animation runtime is
+    a large dependency to carry for one 280ms effect. The global
+    prefers-reduced-motion rule below switches both of these off.
+  */
+  @keyframes fx-step-forward {
+    from {
+      opacity: 0;
+      transform: translate3d(14px, 0, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes fx-step-back {
+    from {
+      opacity: 0;
+      transform: translate3d(-14px, 0, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .animate-step-forward {
+    animation: fx-step-forward 0.28s var(--ease-out-soft) both;
+  }
+
+  .animate-step-back {
+    animation: fx-step-back 0.28s var(--ease-out-soft) both;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

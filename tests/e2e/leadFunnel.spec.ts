@@ -134,6 +134,24 @@ test.describe("forsikringstjek", () => {
     ).toBeVisible();
   });
 
+  test("step changes animate in the direction the visitor moved", async ({ page }) => {
+    await page.route("**/api/funnel-events", (route) => route.fulfill({ status: 204 }));
+    await page.goto("/forsikringstjek?type=privat");
+    await acceptCookies(page);
+
+    const stepPanel = page.locator("form > div").first();
+    await expect(stepPanel).toHaveClass(/animate-step-forward/);
+
+    await page.getByRole("checkbox", { name: "Bil" }).check();
+    await page.getByRole("button", { name: "Fortsæt" }).click();
+    await expect(page.getByRole("heading", { name: /Hvad er vigtigst/ })).toBeVisible();
+    await expect(page.locator("form > div").first()).toHaveClass(/animate-step-forward/);
+
+    await page.getByRole("button", { name: "← Tilbage" }).click();
+    await expect(page.getByRole("heading", { name: /Hvilke forsikringer/ })).toBeVisible();
+    await expect(page.locator("form > div").first()).toHaveClass(/animate-step-back/);
+  });
+
   test("what happens after submitting is visible before submitting", async ({ page }) => {
     await page.route("**/api/funnel-events", (route) => route.fulfill({ status: 204 }));
     await page.goto("/forsikringstjek");

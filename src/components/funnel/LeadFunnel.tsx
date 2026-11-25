@@ -11,6 +11,7 @@ import {
   TextField,
 } from "@/components/ui/Field";
 import { FunnelProgress } from "./FunnelProgress";
+import { FunnelSkeleton } from "./FunnelSkeleton";
 import { FunnelSuccess } from "./FunnelSuccess";
 import {
   initialFunnelState,
@@ -66,7 +67,8 @@ export function LeadFunnel({
   // instead of an effect that patches state in after the first paint.
   const hydrated = useHydrated();
   if (!hydrated) {
-    return <div className="min-h-[26rem] animate-pulse rounded-xl bg-ink-50" />;
+    // Same shape as loading.tsx, so navigation reads as one moment, not two.
+    return <FunnelSkeleton />;
   }
   return <LeadFunnelForm initialType={initialType} intent={intent} />;
 }
@@ -129,6 +131,8 @@ function LeadFunnelForm({
   const [status, setStatus] = useState<"idle" | "submitting" | "done" | "error">("idle");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [sessionId] = useState<string | null>(() => readOrCreateSessionId());
+  /** Which way the last step change went, so the transition can match it. */
+  const [direction, setDirection] = useState<"forward" | "back">("forward");
   const headingRef = useRef<HTMLHeadingElement>(null);
   const startedRef = useRef(false);
   const viewedSteps = useRef<Set<string>>(new Set());
@@ -249,6 +253,7 @@ function LeadFunnelForm({
 
     if (!isLastStep) {
       setErrors({});
+      setDirection("forward");
       setStepIndex((i) => i + 1);
       focusHeading();
       return;
@@ -261,6 +266,7 @@ function LeadFunnelForm({
     if (stepIndex === 0) return;
     setErrors({});
     setSubmitError(null);
+    setDirection("back");
     setStepIndex((i) => i - 1);
     focusHeading();
   };
@@ -337,8 +343,7 @@ function LeadFunnelForm({
   }
 
   if (!step) {
-    // Placeholder with the same height as a step, so nothing jumps.
-    return <div className="min-h-[26rem] animate-pulse rounded-xl bg-ink-50" />;
+    return <FunnelSkeleton />;
   }
 
   const productOptions =
@@ -356,11 +361,21 @@ function LeadFunnelForm({
           void goNext();
         }}
       >
+        {/*
+          Keyed on the step so React remounts it and the entrance replays.
+          The direction matches the button that was pressed, which is the
+          whole point: it says "you moved on", not "the page changed".
+        */}
+        <div
+          key={step.id}
+          className={
+            direction === "forward" ? "animate-step-forward" : "animate-step-back"
+          }
+        >
         <h2
           ref={headingRef}
           tabIndex={-1}
           className="text-h2 outline-none"
-          key={step.id}
         >
           {step.title}
         </h2>
@@ -639,6 +654,7 @@ function LeadFunnelForm({
               </div>
             </>
           ) : null}
+        </div>
         </div>
 
         {submitError ? (
