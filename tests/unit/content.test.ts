@@ -4,6 +4,7 @@ import { industries } from "@/content/industries";
 import { guides } from "@/content/guides";
 import { cases } from "@/content/cases";
 import { landingPages } from "@/content/landingPages";
+import { heroExcerpt, compareExcerpts } from "@/content/policyExamples";
 import { siteConfig } from "@/config/site";
 import { primaryCta } from "@/config/cta";
 
@@ -138,6 +139,11 @@ describe("compliance guardrails", () => {
       l.metaDescription,
       ...l.points.flatMap((p) => [p.title, p.body]),
     ]),
+    // The signature device renders policy text, so it is held to the same rule.
+    heroExcerpt.note.heading,
+    heroExcerpt.note.body,
+    ...heroExcerpt.lines.map((l) => l.text),
+    ...compareExcerpts.flatMap((e) => e.lines.map((l) => l.text)),
   ].map((text) => text.toLowerCase());
 
   it("no undocumented market-coverage or savings claims in content", () => {
@@ -146,6 +152,31 @@ describe("compliance guardrails", () => {
         expect(text.includes(claim), `Forbidden claim "${claim}" in: ${text}`).toBe(false);
       }
     }
+  });
+
+  it("every policy example is marked as an example, never as a real policy", () => {
+    // The excerpts carry amounts and clause numbers. The components render a
+    // visible "Eksempel" badge; this guards the data side — no example may
+    // name a customer, a company or an insurer.
+    const named = /\b(lars|mette|anders|jensen|tryg|topdanmark|alka|codan|gjensidige|if\b)/i;
+    const allText = [
+      heroExcerpt.title,
+      heroExcerpt.note.heading,
+      heroExcerpt.note.body,
+      ...heroExcerpt.lines.map((l) => l.text),
+      ...compareExcerpts.flatMap((e) => [e.title, e.label, ...e.lines.map((l) => l.text)]),
+    ];
+    for (const text of allText) {
+      expect(named.test(text), `Example names a real party: ${text}`).toBe(false);
+    }
+    // Each comparison side must actually differ somewhere, or the section
+    // demonstrates nothing.
+    const [a, b] = compareExcerpts;
+    expect(a && b).toBeTruthy();
+    const marksA = a!.lines.filter((l) => l.marked).map((l) => l.text);
+    const marksB = b!.lines.filter((l) => l.marked).map((l) => l.text);
+    expect(marksA.length).toBeGreaterThan(0);
+    expect(marksA).not.toEqual(marksB);
   });
 
   it("no fabricated social proof is published", () => {

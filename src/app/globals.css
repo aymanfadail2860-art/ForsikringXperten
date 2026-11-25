@@ -32,20 +32,32 @@
   --color-navy: #0c1a2b;
   --color-navy-soft: #16283c;
 
-  /* --- Accent / CTA: one blue, used consistently -------------------- */
-  --color-accent-50: #eef5ff;
-  --color-accent-100: #d9e8ff;
-  --color-accent-200: #b7d3ff;
-  --color-accent-300: #85b5ff;
-  --color-accent-400: #4b8ffb;
-  --color-accent-500: #1f6feb;
-  --color-accent-600: #0b58cc; /* primary button fill — 5.9:1 with white */
-  --color-accent-700: #0a47a3;
-  --color-accent-800: #0c3c85;
-  --color-accent-900: #0d336e;
+  /* --- Accent / CTA: the brand green, used consistently --------------
+     Green is not decoration here. It is the colour of something found in a
+     policy: the marker, the callout rule, the primary action. Measured
+     contrast is noted on each step that carries text. */
+  --color-accent-50: #ecfaf2;
+  --color-accent-100: #d5f3e3;
+  --color-accent-200: #a9e6c6;
+  --color-accent-300: #6cd3a2;
+  --color-accent-400: #2fb87e;
+  --color-accent-500: #12a169;
+  --color-accent-600: #0a7d4d; /* primary button fill — 5.2:1 with white */
+  --color-accent-700: #076b41; /* link text on light — 6.5:1 with white bg */
+  --color-accent-800: #075836;
+  --color-accent-900: #06472c;
 
-  /* Highlight used inside dark navy sections only (never a button). */
-  --color-highlight: #56c8f0;
+  /* Highlight used inside dark navy sections only (never a button).
+     10.2:1 on navy. */
+  --color-highlight: #4ade9a;
+
+  /* --- The signature: "markeringen" ----------------------------------
+     The colour a line gets when an advisor has found something in it.
+     Only ever used behind text, never as a fill for decoration.
+     --color-marker on light: 14.5:1 with ink-900.
+     --color-marker-dark on navy: carries --color-highlight text. */
+  --color-marker: #cdf2df;
+  --color-marker-dark: #0f3b2b;
 
   /* --- Semantic (forms, admin, states) ------------------------------ */
   --color-success-50: #ecfdf3;
