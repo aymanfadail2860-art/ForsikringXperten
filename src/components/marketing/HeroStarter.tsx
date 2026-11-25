@@ -24,14 +24,14 @@ import { trackCtaClick } from "@/lib/analytics/track";
 const options = [
   {
     key: "privat" as const,
-    title: "Mine private forsikringer",
+    title: segmentCta.private.label,
     description: "Bil, bolig, indbo, ulykke og rejse",
     href: segmentCta.private.href,
     label: segmentCta.private.label,
   },
   {
     key: "erhverv" as const,
-    title: "Min virksomheds forsikringer",
+    title: segmentCta.business.label,
     description: "Ansvar, arbejdsskade, biler og bygninger",
     href: segmentCta.business.href,
     label: segmentCta.business.label,

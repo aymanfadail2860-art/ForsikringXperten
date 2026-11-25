@@ -36,6 +36,7 @@ import {
 } from "@/lib/validation/lead";
 import { getAttribution } from "@/lib/attribution/attribution";
 import { trackEvent } from "@/lib/analytics/track";
+import { heroVariantForPath } from "@/lib/analytics/heroVariant";
 import { useHydrated } from "@/lib/analytics/useConsent";
 import { LEAD_CONSENT_SHORT } from "./consentText";
 
@@ -181,9 +182,17 @@ function LeadFunnelForm({
   useEffect(() => {
     if (status === "done" || !step) return;
 
+    // Read inside the effect: attribution lives in localStorage, which must
+    // not be touched while rendering.
+    const heroVariant = heroVariantForPath(getAttribution().landing_page);
+
     if (!startedRef.current) {
       startedRef.current = true;
-      trackEvent("lead_flow_started", { lead_type: state.leadType, intent });
+      trackEvent("lead_flow_started", {
+        lead_type: state.leadType,
+        intent,
+        hero_variant: heroVariant,
+      });
       postFunnelEvent("lead_flow_started");
       if (intent) {
         // Carried on the anonymous session, so the advisor can see the lead
@@ -199,6 +208,10 @@ function LeadFunnelForm({
         step_id: step.id,
         step_index: stepIndex,
         lead_type: state.leadType,
+        // Same dimension as on page_view, derived from the landing page the
+        // visit started on — so "landing visit → step 2" is one comparison
+        // over two events we already send.
+        hero_variant: heroVariant,
       });
       postFunnelEvent("lead_step_viewed", { stepId: step.id, stepIndex });
     }

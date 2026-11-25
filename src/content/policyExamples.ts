@@ -12,6 +12,27 @@ import type { PolicyLine } from "@/components/marketing/PolicyExcerpt";
  * someone asks "where do these numbers come from".
  */
 
+/**
+ * The two advisor notes under test on the front page.
+ *
+ * A is the question that makes the amount personal. B states the arithmetic
+ * of a claim instead, so the reader can see what the 8.000 kr. actually costs
+ * them. Everything else on the screen — headline, excerpt, buttons — is
+ * identical, so the comparison measures the note and nothing else.
+ */
+export type HeroVariant = "a" | "b";
+
+export const heroNotes: Record<HeroVariant, { heading: string; body: string }> = {
+  a: {
+    heading: "Kan du betale 8.000 kr. i morgen?",
+    body: "Hvis ikke, er forsikringen billig det forkerte sted.",
+  },
+  b: {
+    heading: "En dækket skade koster 20.000 kr.",
+    body: "I dette eksempel betaler du selv 8.000 kr.",
+  },
+};
+
 export const heroExcerpt: {
   title: string;
   lines: PolicyLine[];
@@ -24,10 +45,7 @@ export const heroExcerpt: {
     { ref: "4.4", text: "Selvrisiko pr. skade: 8.000 kr.", marked: true },
     { ref: "4.5", text: "Ved flere skader inden for 12 mdr…", contextOnly: true },
   ],
-  note: {
-    heading: "Kan du betale 8.000 kr. i morgen?",
-    body: "Hvis ikke, er forsikringen billig det forkerte sted.",
-  },
+  note: heroNotes.a,
 };
 
 /**

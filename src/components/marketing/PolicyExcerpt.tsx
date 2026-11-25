@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -83,8 +84,8 @@ export function PolicyExcerpt({
 
       <div className="mt-3 space-y-1">
         {lines.map((line) => (
+          <Fragment key={line.ref}>
           <p
-            key={line.ref}
             className={cn(
               "flex gap-2.5 font-mono text-[0.78125rem] leading-[1.75]",
               line.contextOnly && "hidden sm:flex",
@@ -109,10 +110,18 @@ export function PolicyExcerpt({
               {line.text}
             </span>
           </p>
+          {/*
+            The note is rendered immediately after the line it is about, not
+            at the end of the fragment. Two lines of unrelated policy text in
+            between were enough to break the link between the amount and what
+            it means.
+          */}
+          {note && line.marked ? <ExcerptNote note={note} dark={dark} /> : null}
+          </Fragment>
         ))}
       </div>
 
-      {note ? (
+      {note && !lines.some((l) => l.marked) ? (
         <div
           className={cn(
             "mt-4 border-l-[3px] py-2 pl-3.5 pr-1",
@@ -133,6 +142,31 @@ export function PolicyExcerpt({
         </div>
       ) : null}
     </figure>
+  );
+}
+
+/** The advisor's remark, tied visually to the marked line above it. */
+function ExcerptNote({
+  note,
+  dark,
+}: {
+  note: { heading: string; body: string };
+  dark: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "mt-2 border-l-[3px] py-1.5 pl-3 pr-1",
+        dark ? "border-highlight" : "border-accent-600",
+      )}
+    >
+      <p className={cn("text-small font-semibold", dark ? "text-white" : "text-ink-900")}>
+        {note.heading}
+      </p>
+      <p className={cn("mt-0.5 text-small", dark ? "text-ink-300" : "text-ink-600")}>
+        {note.body}
+      </p>
+    </div>
   );
 }
 

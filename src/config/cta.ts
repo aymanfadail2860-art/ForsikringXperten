@@ -41,11 +41,25 @@ export const tertiaryCta = phoneIsPublic
 export const ctaTrustLine =
   "Uforpligtende gennemgang · Tager ca. 2 minutter at starte";
 
-/** Segment-specific entry points into the same funnel. */
+/**
+ * Segment-specific entry points into the same funnel.
+ *
+ * The wording mirrors the promise the ads make, so the button a visitor lands
+ * on says the thing they clicked for. "Modbud" describes what we produce —
+ * an alternative offer held up against the one they have — not a promise that
+ * it will be cheaper.
+ *
+ * Note for analytics: these labels are the `cta_label` dimension, so the
+ * values change from this release. Comparisons across the change should be
+ * made on `cta_location`, which is stable.
+ */
 export const segmentCta = {
-  private: { label: "Tjek mine private forsikringer", href: `${LEAD_FLOW_PATH}?type=privat` },
+  private: {
+    label: "Sammenlign mine forsikringer",
+    href: `${LEAD_FLOW_PATH}?type=privat`,
+  },
   business: {
-    label: "Tjek virksomhedens forsikringer",
+    label: "Få et modbud til mit firma",
     href: `${LEAD_FLOW_PATH}?type=erhverv`,
   },
 } as const;

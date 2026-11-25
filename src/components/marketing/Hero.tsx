@@ -1,7 +1,7 @@
 import { Container } from "@/components/ui/Layout";
 import { PolicyExcerpt } from "./PolicyExcerpt";
 import { HeroStarter } from "./HeroStarter";
-import { heroExcerpt } from "@/content/policyExamples";
+import { heroExcerpt, heroNotes, type HeroVariant } from "@/content/policyExamples";
 import { publicResponseTime } from "@/config/site";
 
 /**
@@ -16,7 +16,7 @@ import { publicResponseTime } from "@/config/site";
  * the screen that could not belong to a bank or a telephone company, and it
  * is set on its own line on a phone for exactly that reason.
  */
-export function Hero() {
+export function Hero({ variant = "a" }: { variant?: HeroVariant }) {
   const nextStepLine = publicResponseTime
     ? `En rådgiver kontakter dig ${publicResponseTime}.`
     : "Du hører fra en rådgiver, inden der sker noget som helst.";
@@ -108,7 +108,7 @@ export function Hero() {
                 bare
                 title={heroExcerpt.title}
                 lines={heroExcerpt.lines}
-                note={heroExcerpt.note}
+                note={heroNotes[variant]}
               />
               <div className="my-3.5 border-t border-ink-100" />
               <HeroStarter />

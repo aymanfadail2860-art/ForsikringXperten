@@ -14,6 +14,12 @@ type Props = {
   /** Overrides the global label — use only when the context demands it. */
   label?: string;
   href?: string;
+  /**
+   * Marks this as the page's own primary action. The sticky mobile bar hides
+   * while a marked CTA is on screen, so the visitor never sees the same
+   * action twice at once.
+   */
+  isPageCta?: boolean;
 };
 
 /**
@@ -28,6 +34,7 @@ export function PrimaryCta({
   className,
   label,
   href,
+  isPageCta,
 }: Props) {
   const finalLabel = label ?? primaryCta.label;
   const finalHref = href ?? primaryCta.href;
@@ -38,6 +45,7 @@ export function PrimaryCta({
       size={size}
       fullWidth={fullWidth}
       className={className}
+      {...(isPageCta ? { "data-cta-primary": "" } : {})}
       onClick={() => trackCtaClick(location, finalLabel, finalHref)}
     >
       {finalLabel}

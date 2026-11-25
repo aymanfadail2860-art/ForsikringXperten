@@ -129,6 +129,9 @@ export function SegmentSplit() {
                 <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3 pt-1">
                   <Link
                     href={segment.href}
+                    // Marks this as offering the same action as the sticky
+                    // bottom bar, which steps aside while it is on screen.
+                    data-cta-primary=""
                     onClick={() => trackCtaClick("segment_split", segment.cta, segment.href)}
                     className="inline-flex items-center justify-center rounded-lg bg-accent-600 px-5 py-3 text-body font-semibold text-white transition-colors hover:bg-accent-700 active:scale-[0.99]"
                   >

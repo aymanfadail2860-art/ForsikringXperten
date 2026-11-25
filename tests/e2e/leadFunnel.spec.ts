@@ -96,7 +96,9 @@ test.describe("forsikringstjek", () => {
       page.getByRole("heading", { name: "Hvad vil du have gennemgået?" }),
     ).toBeVisible();
 
-    await page.getByRole("link", { name: /Mine private forsikringer/ }).click();
+    // The hero entry and the segment panel now carry the same label by
+    // design, so the hero one is addressed by position.
+    await page.getByRole("link", { name: /Sammenlign mine forsikringer/ }).first().click();
 
     // …and the funnel opens on step two, not back at the start.
     await expect(page).toHaveURL(/\/forsikringstjek\?type=privat/);
@@ -109,7 +111,9 @@ test.describe("forsikringstjek", () => {
     await page.goto("/");
     await acceptCookies(page);
 
-    await page.getByRole("link", { name: /Min virksomheds forsikringer/ }).click();
+    // The hero entry and the segment panel now carry the same label by
+    // design, so the hero one is addressed by position.
+    await page.getByRole("link", { name: /Få et modbud til mit firma/ }).first().click();
     await expect(page).toHaveURL(/\/forsikringstjek\?type=erhverv/);
     await expect(
       page.getByRole("heading", { name: "Hvilken virksomhed drejer det sig om?" }),

@@ -24,7 +24,7 @@ export function CtaBand({
           <p className="mt-4 text-body-lg text-ink-200">{description}</p>
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <PrimaryCta location={location} />
+            <PrimaryCta location={location} isPageCta />
             <SecondaryCta location={location} variant="onDark" />
           </div>
 

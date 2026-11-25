@@ -4,7 +4,7 @@ import { industries } from "@/content/industries";
 import { guides } from "@/content/guides";
 import { cases } from "@/content/cases";
 import { landingPages } from "@/content/landingPages";
-import { heroExcerpt, compareExcerpts } from "@/content/policyExamples";
+import { heroExcerpt, heroNotes, compareExcerpts } from "@/content/policyExamples";
 import { siteConfig } from "@/config/site";
 import { primaryCta } from "@/config/cta";
 
@@ -140,8 +140,8 @@ describe("compliance guardrails", () => {
       ...l.points.flatMap((p) => [p.title, p.body]),
     ]),
     // The signature device renders policy text, so it is held to the same rule.
-    heroExcerpt.note.heading,
-    heroExcerpt.note.body,
+    // Both hero versions' notes are live copy, so both are checked.
+    ...Object.values(heroNotes).flatMap((n) => [n.heading, n.body]),
     ...heroExcerpt.lines.map((l) => l.text),
     ...compareExcerpts.flatMap((e) => e.lines.map((l) => l.text)),
   ].map((text) => text.toLowerCase());
@@ -161,8 +161,7 @@ describe("compliance guardrails", () => {
     const named = /\b(lars|mette|anders|jensen|tryg|topdanmark|alka|codan|gjensidige|if\b)/i;
     const allText = [
       heroExcerpt.title,
-      heroExcerpt.note.heading,
-      heroExcerpt.note.body,
+      ...Object.values(heroNotes).flatMap((n) => [n.heading, n.body]),
       ...heroExcerpt.lines.map((l) => l.text),
       ...compareExcerpts.flatMap((e) => [e.title, e.label, ...e.lines.map((l) => l.text)]),
     ];
@@ -177,6 +176,20 @@ describe("compliance guardrails", () => {
     const marksB = b!.lines.filter((l) => l.marked).map((l) => l.text);
     expect(marksA.length).toBeGreaterThan(0);
     expect(marksA).not.toEqual(marksB);
+  });
+
+  it("the two hero versions differ only in the advisor's note", () => {
+    const [a, b] = [heroNotes.a, heroNotes.b];
+    expect(a.heading).not.toEqual(b.heading);
+    expect(a.body).not.toEqual(b.body);
+    // The marked line is the shared motif — it must not drift between them.
+    const marked = heroExcerpt.lines.filter((l) => l.marked);
+    expect(marked).toHaveLength(1);
+    expect(marked[0]!.text).toContain("8.000 kr.");
+    // Version B names a damage amount; the deductible must be the smaller of
+    // the two, or the example says the opposite of what it means to say.
+    expect(b.heading).toContain("20.000 kr.");
+    expect(b.body).toContain("8.000 kr.");
   });
 
   it("no fabricated social proof is published", () => {

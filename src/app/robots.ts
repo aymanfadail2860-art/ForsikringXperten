@@ -14,7 +14,15 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin", "/admin/", "/api/", "/lp/", "/forsikringstjek"],
+        disallow: [
+          "/admin",
+          "/admin/",
+          "/api/",
+          "/lp/",
+          "/forsikringstjek",
+          // Hero variant B: the same page as "/" with one sentence changed.
+          "/forside-b",
+        ],
       },
     ],
     sitemap: `${siteConfig.url}/sitemap.xml`,

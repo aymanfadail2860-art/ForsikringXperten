@@ -17,7 +17,10 @@ export function Footer() {
 
   return (
     <footer className="bg-navy on-dark">
-      <Container className="py-14 sm:py-16">
+      {/* Extra room at the bottom below lg: the sticky mobile bar is
+          fixed to the bottom edge, and without this it would rest on the
+          last row of footer links. */}
+      <Container className="pt-14 pb-24 sm:pt-16 lg:pb-16">
         <div className="grid gap-10 lg:grid-cols-[1.2fr_repeat(4,minmax(0,1fr))]">
           <div>
             <Logo onDark />
