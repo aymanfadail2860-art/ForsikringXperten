@@ -14,10 +14,15 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+/**
+ * Manrope is a variable font, so no `weight` is declared: listing explicit
+ * weights makes next/font emit one @font-face per weight per subset, which
+ * Turbopack's font resolver rejects ("queries have exactly one entry"). The
+ * variable axis covers 200-800, which is everything the type scale uses.
+ */
 const manrope = Manrope({
   subsets: ["latin"],
   display: "swap",
-  weight: ["600", "700", "800"],
   variable: "--font-manrope",
 });
 
