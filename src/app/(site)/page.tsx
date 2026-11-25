@@ -15,7 +15,7 @@ import { buildMetadata } from "@/lib/seo/metadata";
 export const metadata: Metadata = buildMetadata({
   title: "Forsikringxperten — få gennemgået dine forsikringer",
   description:
-    "Er dine forsikringer stadig de rigtige? Få en uforpligtende gennemgang af pris, dækning og den samlede løsning — privat eller for virksomheden.",
+    "Få gennemgået dine forsikringer af en rådgiver: huller i dækningen, steder hvor du betaler dobbelt, og om prisen står mål med det, du får. Privat og erhverv.",
   path: "/",
 });
 
